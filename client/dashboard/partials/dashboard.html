@@ -1,0 +1,135 @@
+<div id="col-md-12" ng-controller="DashBoardCtrl">
+    <h1>{{ heading }}</h1>
+
+    <div id="form-box">
+        <span ng-show="formType == 'add'">
+         <h2>Add a new item:</h2>
+        </span>
+        <span ng-show="formType == 'edit'">
+         <h2>Edit Item:</h2>
+        </span>
+
+        <div ng-class="!toggleAdd ? 'add-btn' : 'add-btn active'">
+            <span class="add-text">Add a friend</span>
+
+            <div class="friend-input">
+                <div><input type="text" placeholder="Eg: Vandy" ng-model="addFriend" ng-keyup="$event.keyCode == 13 ? addFriendFunction(addFriend) : null"/></div>
+            </div>
+            <span class="fa-stack fa-lg" ng-click="toggleAdd=!toggleAdd">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-plus fa-stack-1x" title="Add a friend"></i>
+            </span>
+        </div>
+        <form name="addExpForm" novalidate>
+            <div>
+                <span>Type:</span>
+                <select name="type" ng-model="userForm.type" required>
+                    <option value="">-- choose Type --</option>
+                    <option ng-repeat="type in types" value="{{ type.value }}">{{ type.name }}</option>
+                </select>
+                <small class="error-msg"
+                       ng-show="addExpForm.type.$error.required">
+                    Select Type*
+                </small>
+            </div>
+            <div>
+                <span>Add friend:</span>
+                <select name="friend" multiple="multiple" ng-model="userForm.friends" required>
+                    <option ng-repeat="friend in friendLists" value="{{ friend.value }}">{{ friend.name }}</option>
+                </select>
+                <small class="error-msg"
+                       ng-show="addExpForm.friend.$error.required">
+                    Select Currency*
+                </small>
+            </div>
+
+            <div>
+                <span>Name:</span>
+                <input type="text" name="name" placeholder="What did you spend on?" ng-model="userForm.name" required>
+                <small class="error-msg"
+                       ng-show="addExpForm.name.$error.required">
+                    Your name is required*
+                </small>
+            </div>
+
+            <div>
+                <span>Date:</span>
+                <input type="date" name="date" ng-model="userForm.date" required>
+                <small class="error-msg"
+                       ng-show="addExpForm.date.$error.required">
+                    Select Date*
+                </small>
+            </div>
+
+            <div>
+                <span>Currency:</span>
+                <select name="currency" ng-model="userForm.currency" required>
+                    <option value="">-- choose Currency --</option>
+                    <option ng-repeat="currency in currencies" value="{{ currency.value }}">{{ currency.name }}</option>
+                </select>
+                <small class="error-msg"
+                       ng-show="addExpForm.currency.$error.required">
+                    Select Currency*
+                </small>
+            </div>
+            <div>
+                <span>Amount:</span>
+                <input type="number" name="amount" placeholder="How much?" ng-model="userForm.amount" required>
+                <small class="error-msg"
+                       ng-show="addExpForm.amount.$error.required">
+                    Amount Can't be Empty*
+                </small>
+            </div>
+
+            <span ng-show="formType == 'add'">
+                <button ng-click="submitAddForm(userForm)" type="submit" id="button" ng-disabled="addExpForm.$invalid">Add a new expense</button>
+            </span>
+            <span ng-show="formType == 'edit'">
+                <button ng-click="editAddForm(index,userForm)" type="submit" id="button" ng-disabled="addExpForm.$invalid">Done</button>
+            </span>
+
+        </form>
+    </div>
+    <div class="filter-block">
+        <div class="filter-option">
+            <span>Filter by friend:</span>
+            <select name="filter-friend" ng-model="searchResult">
+                <option value="">-- choose Friend --</option>
+                <option ng-repeat="friend in friendLists" value="{{ friend.value }}">{{ friend.name }}</option>
+            </select>
+        </div>
+        <div class="filter-option">
+            <span>Currency:</span>
+            <select name="filter-currency" ng-model="searchResultCurrency">
+                <option value="">-- choose Currency --</option>
+                <option ng-repeat="currency in currencies" value="{{ currency.value }}">{{ currency.name }}</option>
+            </select>
+            <small>(Rounded To Nearest Value)</small>
+        </div>
+    </div>
+    <table>
+        <tr>
+            <th id="type" class="center">Type</th>
+            <th>Name</th>
+            <th>Friends</th>
+            <th id="date">Date</th>
+            <th style="text-align: right" id="amount">Amount</th>
+            <th class="table-btn">Edit</th>
+            <th class="table-btn">Delete</th>
+        </tr>
+        <tr ng-repeat="expenseList in expLists | orderBy:'-date' | filter:searchResult ">
+            <td><i ng-class="expenseList.type == 'card' ? 'fa fa-credit-card' :  expenseList.type == 'cash'? 'fa fa-money' : 'fa fa-question-circle'"></i></td>
+            <td>{{ expenseList.name }}</td>
+            <td>
+                <ul ng-repeat="fnd in expenseList.friends">
+                    <li>{{ fnd }}</li>
+                </ul>
+            </td>
+            <td>{{ expenseList.date | date:'mediumDate' }}</td>
+            <td>{{ expenseList.amount | currencyFilter:expenseList.currency:searchResultCurrency }}</td>
+            <td><i class="fa fa-pencil" ng-click="editForm($index,expenseList)"></i></td>
+            <td><i class="fa fa-trash-o" ng-click="deleteEntry(expenseList)"></i></td>
+        </tr>
+    </table>
+</div>
+
